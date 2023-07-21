@@ -1,7 +1,7 @@
 from vector_cube import *
 from vector_graph_functions import *
 # number of cubes to generate
-N = 2
+N = 3
 
 # number of vertices and edges
 vertex_count = N * 4 + 4
@@ -27,6 +27,8 @@ points = [Point(3, [i // 4, (i // 2) % 2, 1 if (i % 4) in [1,2] else 0]) for i i
 edges = [Edge(points[i], points[i + 1]) if (i + 1) % 4 != 0 else Edge(points[i-3], points[i])  for i in range(0, vertex_count)]
 edges += [Edge(points[i], points[i + 4]) for i in range(0, edge_count-vertex_count)]
 
+
+#print(graph_coloring3(edges))
 
 vector_graph_to_nx_graph(edges)
 

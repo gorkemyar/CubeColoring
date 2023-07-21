@@ -3,6 +3,8 @@ from bitstring import BitArray
 import matplotlib.pyplot as plt
 import networkx as nx
 import queue
+from collections import deque
+
 def find_neighbours(edges: list[Edge]):
     edge_dict = {}
     for e1 in edges:
@@ -32,7 +34,7 @@ def to_binary(coordinates, dimension_count) -> int:
     return BitArray(bin=b).uint + total
 
 def vector_graph_to_nx_graph(edges: list[Edge]):
-    colors = graph_coloring(edges)
+    colors = graph_coloring3(edges)
     edges_binary = []
     colors_binary = {}
     nodes = set()
@@ -74,7 +76,7 @@ def graph_coloring(edges: list[Edge]) -> dict[Edge, int]:
     for edge in sorted_edges:
         colored_nodes[edge] = -1
     
-    stack = queue.LifoQueue()
+    stack = queue.deque()
     stack.put(sorted_edges[0])
     colored_nodes[sorted_edges[0]] = find_coloring(sorted_edges[0], edge_neighbours[sorted_edges[0]], colored_nodes, -1)
 
@@ -96,7 +98,6 @@ def graph_coloring(edges: list[Edge]) -> dict[Edge, int]:
                     anyAdjacentColored = True
 
         while (not stack.empty()) and (not isPathAvailable):
-            print("here")
             tmp_edge = stack.get()
             tmp_color = find_coloring(tmp_edge, edge_neighbours[tmp_edge], colored_nodes, colored_nodes[tmp_edge])
             if tmp_color is None:
@@ -113,6 +114,54 @@ def graph_coloring(edges: list[Edge]) -> dict[Edge, int]:
          
     return colored_nodes
     
+
+def graph_coloring2(edges: list[Edge]) -> dict[Edge, int]:
+    edge_neighbours = find_neighbours(edges)
+    sorted_edges = sorted(edge_neighbours.keys(), key=lambda x: len(edge_neighbours[x]), reverse=True)
+    
+    colored_nodes = dict()
+    for edge in sorted_edges:
+        colored_nodes[edge] = -1
+    
+    llist = deque()
+    llist.appendleft(sorted_edges[0])
+    colored_nodes[sorted_edges[0]] = find_coloring(sorted_edges[0], edge_neighbours[sorted_edges[0]], colored_nodes, -1)
+
+    while len(llist) > 0 and len(llist) < len(sorted_edges):
+        current_edge = llist.popleft()
+        llist.appendleft(current_edge)
+
+        isPathAvailable = True
+        anyAdjacentColored = False
+        for adj in edge_neighbours[current_edge]:
+            if colored_nodes[adj] == -1:
+                color_current_edge = find_coloring(adj, edge_neighbours[adj], colored_nodes, -1)
+                if color_current_edge is None:
+                    isPathAvailable = False
+                    break
+                else:
+                    colored_nodes[adj] = color_current_edge
+                    llist.appendleft(adj)
+                    anyAdjacentColored = True
+
+        while (len(llist) != 0) and (not isPathAvailable):
+            print("here")
+            tmp_edge = llist.popleft()
+            tmp_color = find_coloring(tmp_edge, edge_neighbours[tmp_edge], colored_nodes, colored_nodes[tmp_edge])
+            if tmp_color is None:
+                colored_nodes[tmp_edge] = -1
+                continue
+            else:
+                colored_nodes[tmp_edge] = tmp_color
+                llist.appendleft(tmp_edge)
+                flag = True
+                break
+        if anyAdjacentColored == False:
+            tmp = llist.popleft()
+            llist.append(tmp)
+         
+    return colored_nodes
+
 def color_switch(color:int) -> str :
     if color == 0:
         return "red"
@@ -125,4 +174,39 @@ def color_switch(color:int) -> str :
     else:
         return "black"
 
-    
+
+
+
+
+
+
+
+def is_safe(adj, color_dict, color):
+    for a in adj:
+        if color_dict[a] == color:
+            return False
+    return True
+
+def graph_coloring_util(graph: dict, keys: list, idx: int, color_count, color_dict: dict):
+    if idx == len(graph):
+        return True
+
+    for c in range(0, color_count):
+        if is_safe(graph[keys[idx]], color_dict, c):
+            color_dict[keys[idx]] = c
+            if graph_coloring_util(graph,keys, idx + 1, color_count, color_dict):
+                return True
+            color_dict[keys[idx]] = -1
+
+    return False
+
+def graph_coloring3(edges: list[Edge]) -> dict[Edge, int]:
+    graph = find_neighbours(edges)
+    keys = sorted(graph.keys(), key=lambda x: len(graph[x]), reverse=True)
+    colored_nodes = dict()
+    for edge in graph:
+        colored_nodes[edge] = -1
+
+    num_of_colors = 4
+    graph_coloring_util(graph, keys, 0, num_of_colors, colored_nodes)
+    return colored_nodes
