@@ -42,16 +42,19 @@ def vector_graph_to_nx_graph(edges: list[Edge]):
         points = e.get_points()
         p1 = to_binary(points[0].coordinates, points[0].dimension_count)
         p2 = to_binary(points[1].coordinates, points[1].dimension_count)
-        edges_binary.append((p1, p2))
-        colors_binary[(p1, p2)] = color_switch(colors[e])
+
+        pair = (min(p1, p2), max(p1, p2))
+        edges_binary.append(pair)
+        colors_binary[pair] = color_switch(colors[e])
         nodes.add(p1)
         nodes.add(p2)
 
     print(colors_binary)
+    print(edges_binary)
     G = nx.Graph()
     G.add_edges_from(edges_binary)
     pos = nx.spring_layout(G)
-    nx.draw(G,pos, with_labels=True, node_color='skyblue', node_size=500, edge_color=[colors_binary[e] for e in G.edges()])
+    nx.draw(G,pos, with_labels=True, node_color='skyblue', node_size=500, edge_color=[colors_binary[(min(e[0], e[1]), max(e[0],e[1]))] for e in G.edges()])
     plt.axis('off')
     plt.show()
 
@@ -170,7 +173,7 @@ def color_switch(color:int) -> str :
     elif color == 2:
         return "blue"
     elif color == 3:
-        return "yellow"
+        return "orange"
     else:
         return "black"
 
@@ -194,7 +197,7 @@ def graph_coloring_util(graph: dict, keys: list, idx: int, color_count, color_di
     for c in range(0, color_count):
         if is_safe(graph[keys[idx]], color_dict, c):
             color_dict[keys[idx]] = c
-            if graph_coloring_util(graph,keys, idx + 1, color_count, color_dict):
+            if graph_coloring_util(graph, keys, idx + 1, color_count, color_dict):
                 return True
             color_dict[keys[idx]] = -1
 
