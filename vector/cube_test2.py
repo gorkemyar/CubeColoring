@@ -15,6 +15,5 @@ for i in range(len(points)):
             edges.append(Edge(points[i], points[j]))
 
 
-print(len(edges))
-print(graph_coloring3(edges))
+
 vector_graph_to_nx_graph(edges)

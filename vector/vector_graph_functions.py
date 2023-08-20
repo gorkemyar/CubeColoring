@@ -11,14 +11,14 @@ def find_neighbours(edges: list[Edge]):
         for e2 in edges:
             if e1 == e2:
                 continue
-            if e1.git(e2) or e1.is_parallel(e2):
+            if e1.is_perpendicular(e2) or e1.is_parallel(e2):
                 if e1 not in edge_dict:
                     edge_dict[e1] = []
                 edge_dict[e1].append(e2)
     return edge_dict
 
 
-def to_binary2(coordinates, dimension_count) -> int:
+def to_binary(coordinates, dimension_count) -> int:
     coordinates_c = coordinates.copy()
     total = 0
 
@@ -26,7 +26,7 @@ def to_binary2(coordinates, dimension_count) -> int:
 
     return res
 
-def to_binary(coordinates, dimension_count) -> int:
+def to_binary2(coordinates, dimension_count) -> int:
     coordinates_c = coordinates.copy()
     total = 0
     for i in range(dimension_count):
