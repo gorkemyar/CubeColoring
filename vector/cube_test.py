@@ -32,10 +32,3 @@ edges += [Edge(points[i], points[i + 4]) for i in range(0, edge_count-vertex_cou
 
 vector_graph_to_nx_graph(edges)
 
-
-
-# for key in sorted_edges:
-#     print(key, edge_neighbours[key])
-#     print("Length: ", len(edge_neighbours[key]))
-
-#vector_graph_to_nx_graph(edges)
